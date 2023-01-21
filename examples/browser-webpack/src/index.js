@@ -1,17 +1,37 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import './app.css';
-import App from './app.js'
+import { EditorView, minimalSetup } from "codemirror"
+import { create } from 'ipfs-core'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+async function main() {
+  let ipfs;
+  let editor = new EditorView({
+    extensions: minimalSetup,
+    parent: document.body
+  })
 
-// Check if HMR interface is enabled
-if (module.hot) {
-  // Accept hot update
-  module.hot.accept()
+  ipfs = await create({
+    repo: String(Math.random() + Date.now()),
+    init: { alogorithm: 'ed25519' }
+  });
+
+
+
+
+  const cat = async (cid) => {
+    const decoder = new TextDecoder()
+    let content = ''
+
+    for await (const chunk of ipfs.cat(cid)) {
+      content += decoder.decode(chunk, {
+        stream: true
+      })
+    }
+
+    return content;
+  }
+
+  const text = await cat('bafkreidyrjfprszjkuuivi34cmxjgskyq6mrw5lke5rnw4rrfykal3fhsa');
+
+  console.log(text);
 }
+
+main();
