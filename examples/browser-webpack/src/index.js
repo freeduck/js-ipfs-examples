@@ -1,12 +1,10 @@
-import { EditorView, minimalSetup } from "codemirror"
+import {EditorState} from "@codemirror/state"
+import {EditorView, keymap} from "@codemirror/view"
+import {defaultKeymap} from "@codemirror/commands"
 import { create } from 'ipfs-core'
 
 async function main() {
   let ipfs;
-  let editor = new EditorView({
-    extensions: minimalSetup,
-    parent: document.body
-  })
 
   ipfs = await create({
     repo: String(Math.random() + Date.now()),
@@ -30,8 +28,17 @@ async function main() {
   }
 
   const text = await cat('bafkreidyrjfprszjkuuivi34cmxjgskyq6mrw5lke5rnw4rrfykal3fhsa');
-
   console.log(text);
+  let startState = EditorState.create({
+    doc: text,
+    extensions: [keymap.of(defaultKeymap)]
+  })
+
+  let view = new EditorView({
+    state: startState,
+    parent: document.body
+  })
+
 }
 
 main();
